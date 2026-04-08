@@ -1,0 +1,116 @@
+services:
+  app: &app
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - '8000:8000'
+    volumes:
+      - '.:/app'
+      - /app/.venv
+      - shared_tmp:/tmp/ocr_shared
+    env_file:
+      - path: .env
+        required: false
+      - path: ./.env
+        required: true
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - RABBITMQ_HOST=${RABBITMQ_HOST:-rabbitmq}
+      - RABBITMQ_PORT=${RABBITMQ_PORT:-5672}
+      - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER:-guest}
+      - RABBITMQ_PASS=${RABBITMQ_DEFAULT_PASS:-guest}
+      - TZ=Asia/Tokyo
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - mnemo_network
+
+  mysql:
+    image: mysql:9.0-oraclelinux9
+    command: --default-time-zone='+09:00'
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: Asia/Tokyo
+      DEBUG: ${DEBUG:-0}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/initdb.d:/docker-entrypoint-initdb.d
+    ports:
+      - '${MYSQL_PORT}:3306'
+    networks:
+      - mnemo_network
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'mysqladmin',
+          'ping',
+          '-h',
+          'localhost',
+          '-u',
+          'root',
+          '-p$$MYSQL_ROOT_PASSWORD',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  batch:
+    <<: *app
+    ports: []
+    environment:
+      - PYTHONPATH=/app
+    command: >
+      uv run celery -A tasks worker
+      --loglevel=info
+      --concurrency=1
+      --max-tasks-per-child=5
+      --max-memory-per-child=500000
+      --prefetch-multiplier=1
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - mnemo_network
+
+  rabbitmq:
+    image: rabbitmq:4.2-management-alpine
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER:-guest}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS:-guest}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./docker/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    networks:
+      - mnemo_network
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  mnemo_network:
+    name: mnemo_network
+
+volumes:
+  mysql_data:
+  shared_tmp:
+  rabbitmq_data:

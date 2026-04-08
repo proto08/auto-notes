@@ -1,0 +1,53 @@
+{
+  "name": "mnemo-app",
+  "dockerComposeFile": [
+    "../docker-compose.yml",
+    "../docker-compose.devcontainer.yml"
+  ],
+  "service": "app",
+  "runServices": ["app", "mysql"],
+  "workspaceFolder": "/app",
+  "mounts": ["source=${localWorkspaceFolder},target=/app,type=bind"],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/app/.venv/bin/python",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": "explicit"
+        },
+        "[python]": {
+          "editor.formatOnSave": true,
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "always"
+          }
+        },
+        "ruff.enable": true,
+        "ruff.fixAll": true,
+        "ruff.organizeImports": true,
+        "files.autoSave": "onFocusChange",
+        "files.autoSaveDelay": 1000,
+        "files.exclude": {
+          "**/__pycache__": true,
+          "**/.pytest_cache": true,
+          "**/*.pyc": true,
+          "**/.coverage": true,
+          "**/.DS_Store": true,
+          "**/Thumbs.db": true
+        },
+        "window.newWindowDimensions": "maximized",
+        "window.zoomLevel": 0
+      }
+    }
+  },
+  "forwardPorts": [8000],
+  "remoteUser": "root",
+  "postCreateCommand": "git config --global --add safe.directory /app",
+  "shutdownAction": "stopCompose"
+}
