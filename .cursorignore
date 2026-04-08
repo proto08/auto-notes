@@ -1,0 +1,8 @@
+.env
+.env.*
+
+!.env.sample
+!.env.production.sample
+
+.cursorignore
+
