@@ -1,0 +1,22 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.devcontainer
+    volumes:
+      - .:/app:cached
+      - shared_tmp:/tmp/ocr_shared
+    env_file:
+      - ./.env
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - TZ=Asia/Tokyo
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - mnemo_network
