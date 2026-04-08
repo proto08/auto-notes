@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     celery_result_backend: str
 
     # App
+    debug: bool = False
     tz: str = "Asia/Tokyo"
 
     @property
