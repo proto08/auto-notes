@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Annotated
 from uuid import UUID
 
+from celery.result import AsyncResult
 from fastapi import APIRouter, Depends, File, UploadFile
 from sqlalchemy.orm import Session
 
@@ -10,6 +11,7 @@ from entities import TypedResponse
 from entities.files import FileDto
 from entities.transcribes import TranscribesTaskDto
 from services.files import find_file_by_uuid, save_file
+from tasks.transcribes import transcribe_task
 
 router = APIRouter()
 
@@ -32,8 +34,8 @@ async def transcribe(
     session: Annotated[Session, Depends(create_session)],
 ):
     file = find_file_by_uuid(uuid, session)
-    print(file.name)
-    # TODO: trigger tasks, and return taskid
+    result: AsyncResult = transcribe_task.delay(file.id)
+
     pass
 
 
