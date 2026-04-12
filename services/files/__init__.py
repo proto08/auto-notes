@@ -59,8 +59,24 @@ def save_file(session: Session, data: bytes, suffix: str = "") -> File:
 
 def find_file_by_uuid(uuid: uuid.UUID, session: Session) -> File:
     file = (
-        session.query(File).filter(File.uuid == uuid, File.deleted_at is None).first()
+        session.query(File).filter(File.uuid == uuid, File.deleted_at.is_(None)).first()
     )
     if file is None:
         raise NotFoundError("File not found")
     return file
+
+
+def find_file(id: int, session: Session) -> File:
+    file = session.query(File).filter(File.id == id, File.deleted_at.is_(None)).first()
+    if file is None:
+        raise NotFoundError("File not found")
+    return file
+
+
+def find_file_data(file_uuid: uuid.UUID, session: Session) -> bytes:
+    file = find_file_by_uuid(file_uuid, session)
+    path = Path(file.path)
+    try:
+        return path.read_bytes()
+    except OSError:
+        raise NotFoundError()
