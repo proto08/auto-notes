@@ -4,7 +4,6 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -17,15 +16,16 @@ if config.config_file_name is not None:
 import os
 import sys
 
-
 # プロジェクトルート（backend/）をパスの先頭に追加し、models を確実に解決する
 _backend_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if _backend_root not in sys.path:
     sys.path.insert(0, _backend_root)
 
 # 全てのモデルをインポート（autogenerate で検出するため、全モデルモジュールを読み込む）
+import models.files
+import models.tasks
 from models import Base
-
+from settings import settings as app_settings
 
 target_metadata = Base.metadata
 
@@ -33,21 +33,14 @@ target_metadata = Base.metadata
 # カスタム型のレンダリング設定
 def render_item(type_, obj, autogen_context):
     """カスタム型を標準のSQLAlchemy型としてレンダリング"""
-    if (
-        hasattr(obj, "__class__")
-        and obj.__class__.__name__ == "PendulumDateTimeDecorator"
-    ):
-        return "sa.DateTime(timezone=True)"
     if hasattr(obj, "__class__") and obj.__class__.__name__ == "UuidTypeDecorator":
         return "sa.String(length=36)"
     return False
 
 
-# 環境変数からデータベースURLを構築
+# 環境変数からデータベースURLを構築（settings.py の database_url と同一）
 def get_database_url():
-    import settings
-
-    return f"mysql+pymysql://{settings.MYSQL_USER}:{settings.MYSQL_PASSWORD}@{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{settings.MYSQL_DATABASE}"
+    return app_settings.database_url
 
 
 # other values from the config, defined by the needs of env.py,
