@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 def transcribe_task(self, file_id: int):
     with semaphore("transcribe_task"):
         with session_context() as session:
-            _ = transcribe(file_id, session)
+            texts = transcribe(file_id, session)
             logger.info(f"transcribed {file_id}")
-            pass
-    pass
+            return texts.model_dump(mode="json")
