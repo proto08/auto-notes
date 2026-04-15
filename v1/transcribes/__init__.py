@@ -35,11 +35,14 @@ async def transcribe(
 ):
     file = find_file_by_uuid(uuid, session)
     result: AsyncResult = transcribe_task.delay(file.id)
-
-    pass
+    # TODO: create task
+    return TypedResponse[TranscribesTaskDto](
+        item=TranscribesTaskDto(task_id=UUID(result.id))
+    )
 
 
 @router.get("/tasks/{uuid}")
 async def get(uuid: UUID, session: Annotated[Session, Depends(create_session)]):
     # get task id and status from model. if success, return result.
+
     pass
