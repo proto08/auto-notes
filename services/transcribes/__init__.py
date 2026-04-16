@@ -12,9 +12,18 @@ from services.files import find_file_data
 
 logger = logging.getLogger(__name__)
 
-model = WhisperModel(
-    "RoachLin/kotoba-whisper-v2.2-faster", device="cpu", compute_type="int8"
-)
+_model: WhisperModel | None = None
+
+
+def get_model() -> WhisperModel:
+    global _model
+    if _model is None:
+        logger.info("Loading Whisper model...")
+        _model = WhisperModel(
+            "RoachLin/kotoba-whisper-v2.2-faster", device="cpu", compute_type="int8"
+        )
+        logger.info("Whisper model loaded.")
+    return _model
 
 
 def transcribe(file_id: int, session: Session) -> TranscribesDto:
@@ -27,7 +36,7 @@ def transcribe(file_id: int, session: Session) -> TranscribesDto:
 
 
 def call_whisper(audio: bytes) -> Tuple[str, str, TranscriptionInfo]:
-    segments, info = model.transcribe(
+    segments, info = get_model().transcribe(
         io.BytesIO(audio),
         language="ja",
         beam_size=5,
