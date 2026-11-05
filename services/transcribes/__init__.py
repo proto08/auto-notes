@@ -59,7 +59,7 @@ def format_srt_time(seconds: float) -> str:
 
 
 def remove_fillers(text: str) -> str:
-    fillers = [
+    fillers: list[str] = [
         "えーと",
         "えっと",
         "ええと",
