@@ -1,5 +1,4 @@
 import uuid
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import DateTime, String, func
@@ -20,14 +19,14 @@ class UuidTypeDecorator(TypeDecorator):
     impl = String(36)
     cache_ok = True
 
-    def process_bind_param(self, value: Optional[UUID], dialect) -> Optional[str]:
+    def process_bind_param(self, value: UUID | None, dialect) -> str | None:
         if value is None:
             return None
         if isinstance(value, UUID):
             return str(value)
         return value  # type: ignore[unreachable]
 
-    def process_result_value(self, value: Optional[str], dialect) -> Optional[UUID]:
+    def process_result_value(self, value: str | None, dialect) -> UUID | None:
         if value is None:
             return None
         if isinstance(value, str):

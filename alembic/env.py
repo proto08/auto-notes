@@ -22,8 +22,6 @@ if _backend_root not in sys.path:
     sys.path.insert(0, _backend_root)
 
 # 全てのモデルをインポート（autogenerate で検出するため、全モデルモジュールを読み込む）
-import models.files
-import models.tasks
 from models import Base
 from settings import settings as app_settings
 

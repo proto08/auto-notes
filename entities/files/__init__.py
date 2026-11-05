@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from pydantic import Field
@@ -13,9 +12,7 @@ class FileDto(BaseDto):
     name: str = Field(description="ファイル名")
     mime_type: str = Field(description="MIMEタイプ")
     size: int = Field(description="ファイルサイズ")
-    duration: Optional[float] = Field(
-        default=None, description="音声の長さ(seconds)"
-    )
+    duration: float | None = Field(default=None, description="音声の長さ(seconds)")
 
     created_at: datetime = Field(description="作成日時")
     updated_at: datetime = Field(description="更新日時")
