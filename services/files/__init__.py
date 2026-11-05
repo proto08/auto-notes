@@ -4,7 +4,7 @@ from pathlib import Path
 
 from sqlalchemy.orm import Session
 
-from entities.errors import NotFoundError, ValidationError
+from entities.errors import NotFoundError
 from models.files import File
 
 FILES_DIR = Path("/tmp/audios")
@@ -73,8 +73,8 @@ def find_file(id: int, session: Session) -> File:
     return file
 
 
-def find_file_data(file_uuid: uuid.UUID, session: Session) -> bytes:
-    file = find_file_by_uuid(file_uuid, session)
+def find_file_data(file_id: int, session: Session) -> bytes:
+    file = find_file(file_id, session)
     path = Path(file.path)
     try:
         return path.read_bytes()

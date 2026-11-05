@@ -1,7 +1,6 @@
 import io
 import logging
 import re
-from typing import Tuple
 
 from faster_whisper import WhisperModel
 from faster_whisper.transcribe import Segment, TranscriptionInfo
@@ -35,7 +34,7 @@ def transcribe(file_id: int, session: Session) -> TranscribesDto:
     return TranscribesDto(text=clear_text, srt=srt)
 
 
-def call_whisper(audio: bytes) -> Tuple[str, str, TranscriptionInfo]:
+def call_whisper(audio: bytes) -> tuple[str, str, TranscriptionInfo]:
     segments, info = get_model().transcribe(
         io.BytesIO(audio),
         language="ja",
@@ -60,7 +59,7 @@ def format_srt_time(seconds: float) -> str:
 
 
 def remove_fillers(text: str) -> str:
-    fillers = [
+    fillers: list[str] = [
         "えーと",
         "えっと",
         "ええと",
