@@ -1,5 +1,6 @@
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable, Dict, Generic, List, TypeVar
+from typing import Any, Generic, TypeVar
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -8,11 +9,11 @@ _S = TypeVar("_S")
 _T = TypeVar("_T")
 
 
-def dict_factory() -> Dict[str, Any]:
+def dict_factory() -> dict[str, Any]:
     return {}
 
 
-def list_factory() -> List[Any]:
+def list_factory() -> list[Any]:
     return []
 
 
@@ -42,11 +43,11 @@ class TypedResponse(BaseResponse, Generic[_T]):
 class TypedListResponse(BaseResponse, Generic[_T]):
     """複数の値を返すレスポンス"""
 
-    items: List[_T]
+    items: list[_T]
 
     @staticmethod
     def from_models(
-        models: List[_S], converter: Callable[[_S], _T], message: str = "OK"
+        models: list[_S], converter: Callable[[_S], _T], message: str = "OK"
     ) -> "TypedListResponse[_T]":
         """モデル一覧からTypedListResponseを構成する"""
         items = list[_T](
@@ -63,7 +64,7 @@ class SearchResponse(TypedListResponse[_T]):
 
     @staticmethod
     def from_models(
-        models: List[_S],
+        models: list[_S],
         converter: Callable[[_S], _T],
         message: str = "OK",
         count: int = 0,

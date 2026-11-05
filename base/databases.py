@@ -1,12 +1,11 @@
 import logging
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Generator
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from settings import settings
-
 
 logger = logging.getLogger(__name__)
 
@@ -35,9 +34,9 @@ def session_context() -> Generator[Session, None, None]:
     try:
         yield session
         session.commit()
-    except Exception as exception:
+    except Exception:
         session.rollback()
-        logger.error(f"Database Error: {exception}", exc_info=True)
-        raise exception
+        logger.exception("Database Error")
+        raise
     finally:
         session.close()

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from sqlalchemy.orm import Session
 
-from entities.errors import NotFoundError, ValidationError
+from entities.errors import NotFoundError
 from models.files import File
 
 FILES_DIR = Path("/tmp/audios")

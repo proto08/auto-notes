@@ -19,7 +19,7 @@ class Task(DeletableModel, UuidMixin):
         ForeignKey("api_keys.id"), nullable=False, comment="APIKEYのID"
     )
     owner: Mapped["ApiKey"] = relationship("ApiKey", back_populates="files")
-    file_id: Mapped[Optional[int]] = mapped_column(
+    file_id: Mapped[int | None] = mapped_column(
         ForeignKey("files.id", ondelete="RESTRICT"),
         nullable=True,
     )

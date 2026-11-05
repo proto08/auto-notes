@@ -22,3 +22,13 @@ dependencies = [
     "torch>=2.11.0",
     "uvicorn>=0.44.0",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.17.3",
+    "ty>=0.0.97",
+]
+
+[tool.ruff.lint]
+# pydantic の Generic[_T] は PEP 695 構文へ移行せずに残す
+ignore = ["UP046"]
